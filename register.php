@@ -4,17 +4,18 @@ include 'connect.php';
 
 if(isset($_POST['submit'])){
 
-   $name = $_POST['name'];
-   $name = filter_var($name, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-   $email = $_POST['email'];
-   $email = filter_var($email, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+   $name = filter_var($_POST['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+   $email = filter_var($_POST['email'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
    $pass = sha1($_POST['pass']);
    $pass = filter_var($pass, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
    $cpass = sha1($_POST['cpass']);
    $cpass = filter_var($cpass, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
+   // For SELECT
    $select_users = $con->prepare("SELECT * FROM `users` WHERE email = ?");
-   $select_users->execute([$email]);
+   $select_users->bind_param("s", $email); // 's' specifies the variable type => 'string'
+   $select_users->execute();
+   $select_users->store_result(); // Store result to get num_rows
 
    if($select_users->num_rows > 0){
       $message[] = 'Email already taken!';
@@ -26,26 +27,31 @@ if(isset($_POST['submit'])){
          $select_users->close();
 
          $insert_user = $con->prepare("INSERT INTO `users`(name, email, password) VALUES(?,?,?)");
-         $insert_user->execute([$name, $email, $cpass]);
-         if($insert_user){
+         $insert_user->bind_param("sss", $name, $email, $cpass); // 'sss' means three strings
+         $insert_success = $insert_user->execute(); // Execute and check if successful
+
+         if($insert_success){
             $fetch_user = $con->prepare("SELECT * FROM `users` WHERE email = ? AND password = ?");
-            $fetch_user->execute([$email, $cpass]);
-            $result = $fetch_user->get_result();
-            $row = $result->fetch_assoc();
-            if($result->num_rows > 0){
-               // 60*60*24 = 86400 seconds which is equals to 1 day;
-               // to set cookies for 1 month use 60*60*24*30
-               setcookie('user_id', $row['id'], time() + 60*60*24, '/');
-               header('location:admin.php');
+            $fetch_user->bind_param("ss", $email, $cpass);
+            $fetch_user->execute();
+            $result = $fetch_user->get_result(); // Correct way to get the result
+
+            if($result && $result->num_rows > 0){ // Check if $result is not false and has rows
+                $row = $result->fetch_assoc();
+                // 60*60*24 = 86400 seconds which is equals to 1 day;
+                // to set cookies for 1 month use 60*60*24*30
+                setcookie('user_id', $row['id'], time() + 86400, '/');
+                header('location:admin.php');
+                exit(); // Make sure to terminate the script
             }
+         } else {
+             $message[] = 'Error registering user.';
          }
       }
    }
-
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
