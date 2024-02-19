@@ -7,7 +7,7 @@ if (mysqli_connect_errno()) {
 }
 
 // prepare the SQL query to retrieve all form data from the database
-$sql = "SELECT * FROM events";
+$sql = "SELECT * FROM vehicle_logs";
 
 // execute the query and retrieve the result
 $result = mysqli_query($con, $sql);
@@ -89,86 +89,48 @@ button:hover {
 
 
 	<div class="booking-receipt-container">
-		<table>
-			<tr>
-				<th>Item</th>
-				<th>Details</th>
-			</tr>
-			<?php while ($row = mysqli_fetch_assoc($result)) { ?>
-			<tr>
-				<td>Company Name:</td>
-				<td><?php echo $row['company_name']; ?></td>
-			</tr>
-			<tr>
-				<td>Event Leader Name:</td>
-				<td><?php echo $row['event_leader_name']; ?></td>
-			</tr>
-			<tr>
-				<td>Phone:</td>
-				<td><?php echo $row['phone']; ?></td>
-			</tr>
-			<tr>
-				<td>Physical Address for Invoice:</td>
-				<td><?php echo $row['physical_address']; ?></td>
-			</tr>
-			<tr>
-				<td>VAT:</td>
-				<td><?php echo $row['vat']; ?></td>
-			</tr>
-			<tr>
-				<td>Email address:</td>
-				<td><?php echo $row['email']; ?></td>
-			</tr>
-			<tr>
-				<td>Event Type:</td>
-				<td><?php echo $row['event_type']; ?></td>
-			</tr>
-			<tr>
-				<td>Event Duration:</td>
-				<td><?php echo $row['event_duration']; ?></td>
-			</tr>
-			<tr>
-				<td>Event Date:</td>
-				<td><?php echo $row['event_date']; ?></td>
-			</tr>
-			<tr>
-				<td>Event Name (if applicable):</td>
-				<td><?php echo $row['event_name']; ?></td>
-			</tr>
-			<tr>
-				<td>Number of Delegates:</td>
-				<td><?php echo $row['num_delegates']; ?></td>
-			</tr>
-			<tr>
-				<td>Event Start Time:</td>
-				<td><?php echo $row['event_start_time']; ?></td>
-			</tr>
-			<tr>
-				<td>Event End Time:</td>
-				<td><?php echo $row['event_end_time']; ?></td>
-			</tr>
-			<tr>
-				<td>Room:</td>
-				<td><?php echo $row['room_name']; ?></td>
-			</tr>
-			<tr>
-				<td>Catering Package:</td>
-				<td><?php echo $row['cateringpack']; ?></td>
-			</tr>
-			<tr>
-				<td>Tea/Meal/Break Time:</td>
-				<td><?php echo $row['break_time']; ?></td>
-			</tr>
-			<tr>
-				<td>Special Dietary Requirements:</td>
-				<td><?php echo $row['special_dietary_reqs']; ?></td>
-			</tr>
-			<tr>
-				<td>Bar Requirements:</td>
-				<td><?php echo $row['bar_reqs']; ?></td>
-			</tr>
-			<?php } ?>
-		</table>
+	<table>
+    <tr>
+        <th>Item</th>
+        <th>Details</th>
+    </tr>
+    <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+    <tr>
+        <td>Name:</td>
+        <td><?php echo $row['username']; ?></td>
+    </tr>
+    <tr>
+        <td>Vehicle Reg Number:</td>
+        <td><?php echo $row['vehicle_reg']; ?></td>
+    </tr>
+    <tr>
+        <td>Date Taken:</td>
+        <td><?php echo $row['date_taken']; ?></td>
+    </tr>
+    <tr>
+        <td>Phone:</td>
+        <td><?php echo $row['phone']; ?></td>
+    </tr>
+    <tr>
+        <td>Purpose:</td>
+        <td><?php echo $row['purpose']; ?></td>
+    </tr>
+    <tr>
+        <td>Time Out:</td>
+        <td><?php echo $row['time_out']; ?></td>
+    </tr>
+    <tr>
+        <td>Time In:</td>
+        <td><?php echo isset($row['time_in']) ? $row['time_in'] : 'N/A'; ?></td>
+    </tr>
+    <tr>
+        <td>Date Returned:</td>
+        <td><?php echo isset($row['date_returned']) ? $row['date_returned'] : 'N/A'; ?></td>
+    </tr>
+    <!-- Continue for any additional fields you have in your vehicle_log table -->
+    <?php } ?>
+</table>
+
 	</div>
 </body>
 </html>
@@ -216,7 +178,7 @@ function exportToExcel() {
 body {
   font-family: Arial, sans-serif;
   color: #333;
-  background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('images/investors.jpg');
+  background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('images/bg-earth.jpg');
   background-size: cover;
   background-position: center;
   margin: 0;

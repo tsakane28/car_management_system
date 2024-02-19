@@ -1,51 +1,56 @@
 <?php
-// check if all required form fields are filled in
-if (!isset($_POST['company_name']) || empty($_POST['company_name']) || !isset($_POST['event_leader_name']) || empty($_POST['event_leader_name']) || !isset($_POST['phone']) || empty($_POST['phone']) || !isset($_POST['physical_address']) || empty($_POST['physical_address']) || !isset($_POST['email']) || empty($_POST['email']) || !isset($_POST['event_type']) || empty($_POST['event_type']) || !isset($_POST['event_duration']) || empty($_POST['event_duration']) || !isset($_POST['event_date']) || empty($_POST['event_date']) || !isset($_POST['event_name']) || empty($_POST['event_name']) || !isset($_POST['num_delegates']) || empty($_POST['num_delegates'])) {
+// Check if all required form fields are filled in
+if (
+    !isset($_POST['username']) || empty($_POST['username']) ||
+    !isset($_POST['vehicle_reg']) || empty($_POST['vehicle_reg']) ||
+    !isset($_POST['date_taken']) || empty($_POST['date_taken']) ||
+    !isset($_POST['phone']) || empty($_POST['phone']) ||
+    !isset($_POST['purpose']) || empty($_POST['purpose']) ||
+    !isset($_POST['time_out']) || empty($_POST['time_out'])
+) {
     echo "Please fill in all required fields.";
 } else {
-    // replace the database credentials with your own
+    // Replace the database credentials with your own
     $con = mysqli_connect("localhost", "root", "", "sabre");
 
-    // check if the connection was successful
+    // Check if the connection was successful
     if (mysqli_connect_errno()) {
         echo "Failed to connect to MySQL: " . mysqli_connect_error();
     } else {
-        // Check if the room is available during the proposed event time
-        $room_name = $_POST['room_name'];
-        $event_date = $_POST['event_date'];
-        $event_start_time = $_POST['event_start_time'];
-        $event_end_time = $_POST['event_end_time'];
+        // Prepare the SQL statement
+        $sql = "INSERT INTO vehicle_logs (username, vehicle_reg, date_taken, phone, purpose, time_out, time_in, date_returned, signature) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        // Assign ternary operations to variables
+        $timeIn = isset($_POST['time_in']) ? $_POST['time_in'] : null;
+        $dateReturned = isset($_POST['date_returned']) ? $_POST['date_returned'] : null;
+        $signature = isset($_POST['signature']) ? "confirmed" : null; // Adjust based on how you handle the signature in your form
 
-        $sql_check = "SELECT * FROM events WHERE room_name = ? AND event_date = ? AND ((event_start_time <= ? AND event_end_time >= ?) OR (event_start_time <= ? AND event_end_time >= ?) OR (event_start_time >= ? AND event_end_time <= ?))";
-        $stmt_check = $con->prepare($sql_check);
-        $stmt_check->bind_param("ssssssss", $room_name, $event_date, $event_start_time, $event_end_time, $event_start_time, $event_end_time, $event_start_time, $event_end_time);
-        $stmt_check->execute();
-        $result = $stmt_check->get_result();
+        // Bind the form data to the prepared statement
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param(
+            'sssssssss',
+            $_POST['username'],
+            $_POST['vehicle_reg'],
+            $_POST['date_taken'],
+            $_POST['phone'],
+            $_POST['purpose'],
+            $_POST['time_out'],
+            $timeIn,
+            $dateReturned,
+            $signature
+        );
 
-        if ($result->num_rows > 0) {
-            // The room is already booked during the proposed event time
-            echo "<script>alert('We are sorry, the room is occupied.'); 
-            window.location.href = 'index.php';</script>";
-            exit();
+        // Execute the prepared statement
+        if ($stmt->execute()) {
+            echo "Form data saved successfully.";
+            header('Location: index.php');
         } else {
-            // The room is available, proceed with saving the form data
-            $sql = "INSERT INTO events (company_name, event_leader_name, phone, physical_address, vat, email, event_type, event_duration, event_date, event_name, num_delegates, event_start_time, event_end_time, room_name, cateringpack, break_time, special_dietary_reqs, bar_reqs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            // bind the form data to the prepared statement
-            $stmt = $con->prepare($sql);
-            $stmt->bind_param('ssssssssssssssssss', $_POST['company_name'], $_POST['event_leader_name'], $_POST['phone'], $_POST['physical_address'], $_POST['vat'], $_POST['email'], $_POST['event_type'], $_POST['event_duration'], $_POST['event_date'], $_POST['event_name'], $_POST['num_delegates'], $_POST['event_start_time'], $_POST['event_end_time'], $_POST['room_name'], $_POST['cateringpack'], $_POST['break_time'], $_POST['special_dietary_reqs'], $_POST['bar_reqs']);
-
-            // execute the prepared statement
-            if ($stmt->execute()) {
-                echo "Form data saved successfully.";
-            } else {
-                echo "Error: " . $stmt->error;
-            }
+            echo "Error: " . $stmt->error;
         }
+
+        // Close the statement and database connection
+        $stmt->close();
+        $con->close();
     }
 }
-// Redirect to index.php
-header("Location: index.php");
-exit;
-
 ?>

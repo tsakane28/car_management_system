@@ -1,29 +1,30 @@
 <?php
-
 include 'connect.php';
 
 if(isset($_POST['submit'])){
-
    $email = $_POST['email'];
    $email = filter_var($email, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
    $pass = sha1($_POST['pass']);
    $pass = filter_var($pass, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
    $select_users = $con->prepare("SELECT * FROM `users` WHERE email = ? AND password = ?");
-   $select_users->execute([$email, $pass]);
+   $select_users->bind_param('ss', $email, $pass); // Bind parameters
+   $select_users->execute(); // Execute the prepared statement
+   
+   // Get the result set
    $result = $select_users->get_result();
-   $row = $result->fetch_assoc();
 
    if($result->num_rows > 0){
+      $row = $result->fetch_assoc();
       setcookie('user_id', $row['id'], time() + 60*60*24, '/');
       header('location:admin.php');
-   }else{
+   } else {
       $message[] = 'Incorrect email or password!';
    }
-
 }
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

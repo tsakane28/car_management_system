@@ -9,7 +9,7 @@
    --white:#fff;
    --box-shadow:0 5px 10px rgba(0,0,0,.1);
    --border:none;
-   --background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)),url('../images/investors.jpg');
+   --background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)),url('../images/bg-earth.jpg');
    --background-size: cover;
    --background-position: center;
 }

@@ -11,11 +11,12 @@ if (mysqli_connect_errno()) {
         $booking_id = $_POST['booking_id'];
 
         // prepare the SQL query to delete the booking from the events table
-        $sql = "DELETE FROM events WHERE id=$booking_id";
+        $sql = "DELETE FROM vehicle_logs WHERE id=$booking_id";
 
         // execute the query
         if (mysqli_query($con, $sql)) {
             echo "<p>The booking request has been cancelled and the record has been deleted.</p>";
+            header('Location: admin.php');
         } else {
             echo "Error deleting record: " . mysqli_error($con);
         }

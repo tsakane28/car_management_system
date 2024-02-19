@@ -1,4 +1,6 @@
 <?php
+session_start(); // Start the session at the very beginning
+
 // replace the database credentials with your own
 $con = mysqli_connect("localhost", "root", "", "sabre");
 
@@ -9,20 +11,23 @@ if (mysqli_connect_errno()) {
     // check if the booking ID has been provided
     if (isset($_POST['booking_id'])) {
         $booking_id = $_POST['booking_id'];
-        $approval_status = 2; // set the approval status to "rejected"
+        $approval_status = 2; // Assuming you're setting a status for some reason
 
-        // prepare the SQL query to update the approval status of the booking
-        $sql = "DELETE FROM events WHERE id=$booking_id";
+        // prepare the SQL query to delete the booking
+        $sql = "DELETE FROM vehicle_logs WHERE id = $booking_id";
 
         // execute the query
         if (mysqli_query($con, $sql)) {
-            echo "<p>The booking request has been rejected.</p>";
+            $_SESSION['snackbar_message'] = "The booking request has been rejected.";
         } else {
-            echo "Error updating record: " . mysqli_error($con);
+            $_SESSION['snackbar_message'] = "Error updating record: " . mysqli_error($con);
         }
-
+        header('Location: admin.php'); // Redirect to the page where you want to show the snackbar
+        exit();
     } else {
-        echo "<p>Booking ID not provided.</p>";
+        $_SESSION['snackbar_message'] = "Booking ID not provided.";
+        header('Location: admin.php'); // Adjust the redirection as necessary
+        exit();
     }
 }
 
